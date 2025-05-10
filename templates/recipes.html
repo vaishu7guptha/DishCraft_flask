@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Your Recipes{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  {% for r in recipes %}
+    <div class="card mb-5 shadow-sm">
+      {% if r.image_url %}
+        <img src="{{ r.image_url }}" class="card-img-top" alt="{{ r.title }}">
+      {% endif %}
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">{{ r.title }}</h5>
+      </div>
+      <div class="card-body">
+        <p class="small text-muted">
+          <strong>Cuisine:</strong> {{ r.cuisine.title() }} &nbsp; 
+          <strong>Dietary:</strong> {{ r.dietary.title() }} &nbsp; 
+          <strong>Servings:</strong> {{ r.count }} &nbsp; 
+          <strong>Date:</strong> {{ r.timestamp.strftime('%b %d, %Y') }}
+        </p>
+
+        <button class="btn btn-sm btn-outline-secondary mb-3" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#detail-{{ r.id }}">
+          View Details
+        </button>
+
+        <div class="collapse" id="detail-{{ r.id }}">
+          <div class="card card-body mb-4 recipe-detail">
+
+            <!-- Ingredients -->
+            <h6 class="fw-bold">🧂 Ingredients</h6>
+            <ul class="mb-3">
+              {% for line in r.content.splitlines() if line.strip().startswith('-') %}
+                <li>{{ line[1:].strip() }}</li>
+              {% endfor %}
+            </ul>
+
+            <!-- Steps -->
+            <h6 class="fw-bold">👨‍🍳 Steps</h6>
+            <ol>
+              {% for line in r.content.splitlines() 
+                    if line.strip()[:1].isdigit() and '.' in line %}
+                <li>{{ line.split('.',1)[1].strip() }}</li>
+              {% endfor %}
+            </ol>
+          </div>
+
+          {% set avg = (r.comments|map(attribute='rating')|sum) / (r.comments|length or 1) %}
+          <p class="mb-2"><strong>Rating:</strong> {{ avg|round(1) }} ★</p>
+
+          <div class="mb-3">
+            <h6>Comments</h6>
+            {% for c in r.comments %}
+              <div class="border rounded p-2 mb-2">
+                <div class="d-flex justify-content-between">
+                  <small class="fw-semibold">{{ c.user.username }}</small>
+                  <small class="text-warning">{{ '★' * c.rating }}</small>
+                </div>
+                <p class="mb-0 small">{{ c.body }}</p>
+              </div>
+            {% else %}
+              <p class="text-muted small">No comments yet.</p>
+            {% endfor %}
+          </div>
+
+          <form method="post">
+            {{ comment_form.hidden_tag() }}
+            <input type="hidden" name="recipe_id" value="{{ r.id }}">
+            <div class="mb-2">
+              {{ comment_form.body(class="form-control", placeholder="Your comment…") }}
+            </div>
+            <div class="mb-2">
+              {{ comment_form.rating(class="form-select") }}
+            </div>
+            <button class="btn btn-sm btn-primary">{{ comment_form.submit.label }}</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Generate Recipes{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-6 offset-md-3">
+    <div class="card p-4">
+      <h2 class="card-title mb-3 text-center">Generate Your Recipes</h2>
+      <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+          {{ form.ingredients.label(class="form-label") }}
+          {{ form.ingredients(class="form-control", placeholder="e.g. tomato, pasta, cheese") }}
+        </div>
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            {{ form.cuisine.label(class="form-label") }}
+            {{ form.cuisine(class="form-select") }}
+          </div>
+          <div class="col-md-4 mb-3">
+            {{ form.dietary.label(class="form-label") }}
+            {{ form.dietary(class="form-select") }}
+          </div>
+          <div class="col-md-4 mb-3">
+            {{ form.count.label(class="form-label") }}
+            {{ form.count(class="form-control") }}
+          </div>
+        </div>
+        <div class="d-grid">
+          {{ form.submit(class="btn btn-primary btn-block") }}
+        </div>
+      </form>
+    </div>
+
+    {% if recipe %}
+      <div class="card p-4 mt-4">
+        <h3 class="card-title">Your Recipe</h3>
+        <pre>{{ recipe }}</pre>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
